@@ -1,0 +1,187 @@
+﻿@{
+    Layout = null;
+}
+
+@**************** 
+    GENERAL
+******************@
+
+@helper BreadcrumbTitle(System.Web.Mvc.UrlHelper url, string breadcrumbLinkText, string thisPageTitle)
+{
+    <h3><a href="@url.Action("Index")">@breadcrumbLinkText</a> > @thisPageTitle</h3>
+}
+
+@**************** 
+    FORMS
+******************@
+
+@helper TextField(
+    System.Web.Mvc.MvcHtmlString labelElem,
+    System.Web.Mvc.MvcHtmlString inputElem,
+    System.Web.Mvc.MvcHtmlString validationElem,
+    bool showCharCount = false)
+{
+    <div class="form-group">
+        @labelElem
+        <div class="col-md-10">
+            @inputElem
+            @validationElem
+        </div>
+    </div>
+}
+
+@helper AttachmentFields()
+{
+    <div class="form-group">
+        <label for="Attachments" class="control-label col-md-2">Attachments</label>
+        <div class="col-md-10">
+            <div id="new-attachments">
+                @AttachmentField()
+            </div>
+            <a id="add-attachment" href="#">Add another file</a>
+        </div>
+    </div>
+}
+
+@helper AttachmentField()
+{
+    <div class="input-group">
+        <div class="input-group-btn">
+            <span class="btn btn-default btn-file">
+                Browse&hellip; <input type="file" name="attachments" />
+            </span>
+        </div>
+        <input type="text" class="form-control attachment-path" readonly />
+    </div>
+}
+
+@helper Buttons(string submitBtnText, string returnUrl = null)
+{
+    <div class="form-group form-buttons">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value=@submitBtnText class="btn btn-primary btn-submit" />
+            @if (!string.IsNullOrWhiteSpace(returnUrl))
+            {
+                <a href=@returnUrl class="btn btn-default">Cancel</a>
+            }
+        </div>
+    </div>
+}
+
+@****************
+    DISPLAY
+******************@
+
+@helper TextWithBreaks(string text)
+{
+    <div class="multiline">@text</div>
+}
+
+@helper TextWithTooltip(string text, string tooltip, bool inline = false)
+{
+    if (!string.IsNullOrWhiteSpace(tooltip))
+    {
+        if (inline)
+        {
+            <span title="@tooltip">@text</span>
+        }
+        else
+        {
+            <div title="@tooltip">@text</div>
+        }
+    }
+    else
+    {
+        if (inline)
+        {
+            <span>@text</span>
+        }
+        else
+        {
+            <div>@text</div>
+        }
+    }
+}
+
+@****************
+    ACTIONS
+******************@
+
+@helper VoteButton(System.Web.Mvc.UrlHelper url, bool hasVoted, ProjectTracker.Models.Project project)
+{
+    <a title="@( hasVoted ? "Remove vote" : "Vote for this project" )"
+       class="btn-vote btn btn-xs @( hasVoted ? "btn-success" : "btn-default" )"
+       href="@url.Action("Vote", "Project", new { p = project.Project_Id })">
+        <strong>
+            <span class="vote-count">@project.VoteCount</span>
+            <span class="glyphicon glyphicon-thumbs-up"></span>
+        </strong>
+    </a>
+}
+
+@helper DeleteItemLink(System.Web.Mvc.UrlHelper url, string controllerName, int? itemId)
+{
+    <a title="Delete" class="btn btn-xs btn-default" href="@url.Action("Delete", controllerName, new { id = itemId })"><span class="glyphicon glyphicon-remove"></span></a>
+}
+
+@helper DeleteItem()
+{
+    <a title="Delete" href="#" class="btn btn-xs btn-default btn-delete" onclick="return false"><span class="glyphicon glyphicon-remove"></span></a>
+}
+
+@helper DeleteConfirmButtons()
+{
+    <div class="form-actions">
+        <input type="submit" value="Delete" class="btn btn-danger btn-submit" />
+        @{ var html = ((System.Web.Mvc.WebViewPage)WebPageContext.Current.Page).Html; }
+        <a class="btn btn-default@(string.IsNullOrWhiteSpace(html.ViewBag.CancelUrl)
+                               ? @html.Raw(" btn-delete-cancel\" onclick=\"return false") @* Link goes nowhere if CancelUrl isn't set *@
+                               : @html.Raw("\" href=\"" + html.ViewBag.CancelUrl))">
+            Cancel
+        </a>
+    </div>
+}
+
+@helper EditItemLink(System.Web.Mvc.UrlHelper url, string controllerName, int? itemId)
+{
+    <a title="Edit" class="btn btn-xs btn-default" href="@url.Action("Edit", controllerName, new { id = itemId })"><span class="glyphicon glyphicon-pencil"></span></a>
+}
+
+@helper DetailsLink(System.Web.Mvc.UrlHelper url, string controllerName, int? itemId,
+    string linkText, string tooltip = null, bool allowContributor = false)
+{
+    if (!allowContributor && ProjectTracker.Models.Login.IsContributor(url.RequestContext.HttpContext))
+    {
+        @HtmlBuilder.TextWithTooltip(linkText, tooltip, true)
+    }
+    else
+    {
+        string attributes = ("href=\"" + @url.Action("Details", controllerName, new { id = itemId }) + "\"");
+        if (!string.IsNullOrWhiteSpace(tooltip))
+        {
+            attributes += " title=\"" + tooltip + "\"";
+        }
+        var html = ((System.Web.Mvc.WebViewPage)WebPageContext.Current.Page).Html;
+        <a @html.Raw(attributes)>@linkText</a>
+    }
+}
+
+@helper ProjectsLink(System.Web.Mvc.UrlHelper url, int projectCount, object entityIds, bool numOnly = false)
+{
+    if (projectCount == 0)
+    {
+        @projectCount
+    }
+    else
+    {
+        System.Web.Routing.RouteValueDictionary entityDict = new System.Web.Routing.RouteValueDictionary(entityIds);
+        if (entityDict.Count > 0)
+        {
+            if (ProjectTracker.Models.Login.IsAdmin(url.RequestContext.HttpContext))
+            {
+                entityDict.Add("arch", 1);
+            }
+            <a href="@url.Action("Index", "Project", entityDict)">@( numOnly ? projectCount.ToString() : "View all (" + projectCount + ")" )</a>
+        }
+    }
+}

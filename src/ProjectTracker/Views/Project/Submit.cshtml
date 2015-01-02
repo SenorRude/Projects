@@ -1,0 +1,101 @@
+﻿@model Project
+
+@{
+    ViewBag.Title = "Submit an Idea";
+}
+
+@HtmlBuilder.BreadcrumbTitle(Url, "Project Ideas", "Submit")
+
+@using (Html.BeginForm("Submit", "Project", FormMethod.Post, new { enctype = "multipart/form-data" })) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true)
+
+        @{
+            System.Linq.Expressions.Expression<Func<Project, string>> expr = model => model.Title;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+            
+            expr = model => model.Short_Description;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help", @rows = "3" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+            
+            expr = model => model.Description;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help", @rows = "6" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+            
+            expr = model => model.Justification;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help", @rows = "4" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+        }
+
+        @if (Login.IsAdmin(Context) || Login.IsAmbassador(Context) || Login.IsMentor(Context))
+        {
+            expr = model => model.Notes;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help", @rows = "5" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+        }
+        else
+        {
+            @Html.HiddenFor(model => model.Notes);
+        }
+
+        @HtmlBuilder.AttachmentFields()
+
+        @HtmlBuilder.Buttons("Submit", ViewBag.CancelUrl)
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/Scripts/Custom/length-help.js")
+    <script type="text/javascript">
+        // Transfer click event from attachment path field to file input
+        $(document).on("click", ".attachment-path", function () {
+            $(this).prev("div").children().children()[0].click();
+        });
+
+        // Add another attachment field to form
+        $("#add-attachment").click(function () {
+            @{ string fieldHtml = HtmlBuilder.AttachmentField().ToString().Replace("\r", "\\\r"); };
+            $("#new-attachments").append('@Html.Raw(fieldHtml)');
+            return false;
+        });
+
+        // Show file name/count in attachment path field
+        $(document).on('change', '.btn-file :file', function () {
+            var input = $(this),
+                numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [numFiles, label]);
+        });
+        $(document).on('fileselect', '.btn-file :file', function (event, numFiles, label) {
+            var input = $(this).parents('.input-group').find(':text'),
+                log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+            if (input.length)
+                input.val(log);
+            else if (log)
+                alert(log);
+        });
+</script>
+
+}

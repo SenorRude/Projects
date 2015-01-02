@@ -1,0 +1,130 @@
+﻿@model Project
+
+@{
+    bool isAdmin = Login.IsAdmin(Context);
+    ViewBag.Title = "Project Details";
+}
+
+<div class="details-header open">
+    @HtmlBuilder.BreadcrumbTitle(Url, "Project Ideas", "Details")
+    <hr />
+    <p class="details-actions">
+        @{ bool hasVoted = Model.Voters.Any(v => Login.DoesUserIdMatch(Context, v.Emp_Id)); }
+        @HtmlBuilder.VoteButton(Url, hasVoted, Model)
+        @if (ViewBag.CanEdit)
+        {
+            @HtmlBuilder.EditItemLink(Url, "Project", Model.Project_Id);
+        }
+        @if (isAdmin)
+        {
+            @HtmlBuilder.DeleteItem()
+        }
+    </p>
+</div>
+
+@if (isAdmin)
+{
+    <div class="details-delete">
+        <h3>Are you sure?</h3>
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @HtmlBuilder.DeleteConfirmButtons()
+        }
+        <hr />
+    </div>
+}
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Title)</dt>
+        <dd>@Html.DisplayFor(model => model.Title)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Short_Description)</dt>
+        <dd>@HtmlBuilder.TextWithBreaks(Model.Short_Description)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.VoteCount)</dt>
+        <dd>
+            @if (Model.VoteCount == 0)
+            { @Html.Raw("None") }
+            else
+            { @Html.ActionLink("View all (" + Model.VoteCount + ")", "Votes", new { id = Model.Project_Id }) }
+        </dd>
+    </dl>
+
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Description)</dt>
+        <dd>@HtmlBuilder.TextWithBreaks(Model.Description)</dd>
+    </dl>
+
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Justification)</dt>
+        <dd>@HtmlBuilder.TextWithBreaks(Model.Justification)</dd>
+    </dl>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <dl class="dl-horizontal">
+            <dt>@Html.DisplayNameFor(model => model.Notes)</dt>
+            <dd>@HtmlBuilder.TextWithBreaks(Model.Notes)</dd>
+        </dl>
+    }
+
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Status)</dt>
+        <dd>
+            @HtmlBuilder.DetailsLink(Url, "Status", Model.Status_Id, Model.Status.Name)
+        </dd>
+
+        <dt>@Html.DisplayNameFor(model => model.School)</dt>
+        <dd>
+            @HtmlBuilder.DetailsLink(Url, "School", Model.School_Id, Model.School.Name, Model.School.ContactInfo)
+        </dd>
+    </dl>
+
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Submit_Date)</dt>
+        <dd>
+            @Html.DisplayFor(model => model.Submit_Date)
+            <br />
+            @HtmlBuilder.DetailsLink(Url, "Employee", Model.Author_Id, Model.Author.FullName,
+                Model.Author.Username + ", " + Model.Author.Role.Title)
+        </dd>
+    </dl>
+
+    @if (Model.Edits.Count > 0)
+    {
+        <dl class="dl-horizontal">
+            <dt>@Html.DisplayNameFor(model => model.LastEdit)</dt>
+            <dd>
+                @Html.DisplayFor(model => model.LastEdit.Date)
+                <br />
+                @HtmlBuilder.DetailsLink(Url, "Employee", Model.LastEdit.Editor_Id, Model.LastEdit.Editor.FullName,
+                    Model.LastEdit.Editor.Username + ", " + Model.LastEdit.Editor.Role.Title)
+                @if (Model.Edits.Count > 1)
+                {
+                    <br />
+                    @Html.ActionLink("View all edits (" + Model.Edits.Count + ")", "History", new { id = Model.Project_Id })
+                }
+            </dd>
+        </dl>
+    }
+    
+    @if (Model.Attachments.Count > 0)
+    {
+        <dl class="dl-horizontal">
+            <dt>@Html.DisplayNameFor(model => model.Attachments)</dt>
+            <dd>
+                @{ Html.RenderAction("List", "Attachment", new { p = Model.Project_Id }); }
+            </dd>
+        </dl>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/Custom/vote.js")
+    @if (isAdmin)
+    {
+        @Scripts.Render("~/Scripts/Custom/details-delete.js")
+    }
+}

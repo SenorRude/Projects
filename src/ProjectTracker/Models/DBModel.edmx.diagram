@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="97fb57815729489fb761ce56548721f1" Name="Diagram1" ZoomLevel="96">
+        <EntityTypeShape EntityType="ProjectTrackerModel.Employee" Width="1.5" PointX="3.5" PointY="3.875" />
+        <EntityTypeShape EntityType="ProjectTrackerModel.Project" Width="1.5" PointX="5.625" PointY="3.875" />
+        <EntityTypeShape EntityType="ProjectTrackerModel.Role" Width="1.5" PointX="1.5" PointY="3.875" />
+        <EntityTypeShape EntityType="ProjectTrackerModel.School" Width="1.5" PointX="7.625" PointY="3.375" />
+        <AssociationConnector Association="ProjectTrackerModel.FK_Employee_Role" />
+        <AssociationConnector Association="ProjectTrackerModel.FK_Project_Author" ></AssociationConnector>
+        <AssociationConnector Association="ProjectTrackerModel.FK_Project_School" />
+        <EntityTypeShape EntityType="ProjectTrackerModel.Status" Width="1.5" PointX="7.625" PointY="7.25" />
+        <AssociationConnector Association="ProjectTrackerModel.FK_Project_Status" />
+        <AssociationConnector Association="ProjectTrackerModel.Employee_School" />
+        <EntityTypeShape EntityType="ProjectTrackerModel.Attachment" Width="1.5" PointX="1.5" PointY="5.75" />
+        <AssociationConnector Association="ProjectTrackerModel.FK_Attachment_Project" />
+        <AssociationConnector Association="ProjectTrackerModel.FK_Attachment_Uploader" />
+        <EntityTypeShape EntityType="ProjectTrackerModel.ProjectEdit" Width="1.5" PointX="3.5" PointY="7.875" />
+        <AssociationConnector Association="ProjectTrackerModel.FK_Project_Edit_Editor" />
+        <AssociationConnector Association="ProjectTrackerModel.FK_Project_Edit_Project" />
+        <AssociationConnector Association="ProjectTrackerModel.Project_Vote" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

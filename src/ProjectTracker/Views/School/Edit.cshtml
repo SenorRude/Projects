@@ -1,0 +1,139 @@
+﻿@model School
+
+@{
+    ViewBag.Title = "Edit School";
+}
+@section Styles
+{
+    <link href="@Url.Content("~/Content/Bootstrap/bootstrap-multiselect.css")" rel="stylesheet" type="text/css" />
+}
+
+@HtmlBuilder.BreadcrumbTitle(Url, "Schools", "Edit")
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal short-fields">
+        <hr />
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.School_Id)
+
+        @{
+            System.Linq.Expressions.Expression<Func<School, string>> expr = model => model.Name;
+            if (Login.IsAdmin(Context))
+            {
+                @HtmlBuilder.TextField(
+                    Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                    Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                    Html.ValidationMessageFor(expr),
+                    true);
+
+                expr = model => model.Short_Name;
+                @HtmlBuilder.TextField(
+                    Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                    Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                    Html.ValidationMessageFor(expr),
+                    true);
+                
+                <div class="form-group">
+                    @Html.Label("Ambassadors", new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.ListBox("Ambassadors", null, new { @class = "form-control", multiple = "multiple" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.Employees, "", new { @class = "text-danger" })
+                </div>
+            
+                <div class="form-group">
+                    @Html.Label("Mentors", new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.ListBox("Mentors", null, new { @class = "form-control", multiple = "multiple" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.Employees, "", new { @class = "text-danger" })
+                </div>
+            }
+            else
+            {
+                @Html.HiddenFor(model => model.Name)
+                @Html.HiddenFor(model => model.Short_Name)
+            }
+
+            expr = model => model.Contact_Name;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+            
+            expr = model => model.Contact_Title;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+
+            expr = model => model.Email;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+
+            expr = model => model.Phone;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+
+            expr = model => model.Fax;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control" } }),
+                Html.ValidationMessageFor(expr));
+
+            expr = model => model.Street;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control" } }),
+                Html.ValidationMessageFor(expr));
+
+            expr = model => model.City;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control" } }),
+                Html.ValidationMessageFor(expr));
+
+            expr = model => model.State;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control" } }),
+                Html.ValidationMessageFor(expr));
+
+            expr = model => model.Zip;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control" } }),
+                Html.ValidationMessageFor(expr));
+            
+            @HtmlBuilder.Buttons("Save", ViewBag.CancelUrl)
+        }
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/Scripts/Custom/length-help.js")
+    @Scripts.Render("~/Scripts/Vendor/bootstrap-multiselect.js")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var multiselectOpts = {
+                disableIfEmpty: true,
+                maxHeight: 300,
+                includeSelectAllOption: true
+            }
+            $("#Ambassadors").multiselect(multiselectOpts);
+            $("#Mentors").multiselect(multiselectOpts);
+        });
+    </script>
+}

@@ -1,0 +1,191 @@
+﻿@model Project
+
+@{
+    bool isAdmin = Login.IsAdmin(Context);
+    bool isAmbassador = Login.IsAmbassador(Context);
+    ViewBag.Title = "Edit Project";
+}
+
+@HtmlBuilder.BreadcrumbTitle(Url, "Project Ideas", "Edit")
+
+@using (Html.BeginForm("Edit", "Project", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.Project_Id)
+
+        @{
+            System.Linq.Expressions.Expression<Func<Project, string>> expr;
+            
+            if (Model.School_Id != (int)School.UNASSIGNED_ID && !isAdmin)
+            {
+                @Html.HiddenFor(model => model.Title)
+                @Html.HiddenFor(model => model.Short_Description)
+                @Html.HiddenFor(model => model.Description)
+                @Html.HiddenFor(model => model.Justification)
+            }
+            else
+            {
+                expr = model => model.Title;
+                @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+
+                expr = model => model.Short_Description;
+                @HtmlBuilder.TextField(
+                    Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                    Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help", @rows = "3" } }),
+                    Html.ValidationMessageFor(expr),
+                    true);
+
+                expr = model => model.Description;
+                @HtmlBuilder.TextField(
+                    Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                    Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help", @rows = "6" } }),
+                    Html.ValidationMessageFor(expr),
+                    true);
+
+                expr = model => model.Justification;
+                @HtmlBuilder.TextField(
+                    Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                    Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help", @rows = "4" } }),
+                    Html.ValidationMessageFor(expr),
+                    true);
+            }
+        }
+
+        @if (isAdmin || isAmbassador || Login.IsMentor(Context))
+        {
+            expr = model => model.Notes;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help", @rows = "5" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+        }
+        else
+        {
+            @Html.HiddenFor(model => model.Notes);
+        }
+
+        @if (isAdmin)
+        {
+            @HtmlBuilder.TextField(
+                Html.LabelFor(model => model.Status, new { @class = "control-label col-md-2" }),
+                Html.DropDownList("Status_Id", null, new { @class = "form-control" }),
+                Html.ValidationMessageFor(model => model.Status_Id),
+                true);
+        }
+        else
+        {
+            @Html.HiddenFor(model => model.Status_Id);
+        }
+
+        @if (isAdmin)
+        {
+            @HtmlBuilder.TextField(
+                Html.LabelFor(model => model.School, new { @class = "control-label col-md-2" }),
+                Html.DropDownList("School_Id", null, new { @class = "form-control" }),
+                Html.ValidationMessageFor(model => model.School_Id),
+                true);
+        }
+        else
+        {
+            @Html.HiddenFor(model => model.School_Id);
+        }
+
+        @HtmlBuilder.AttachmentFields()
+        @if (Model.Attachments.Count > 0)
+        {
+            <div id="attachment-list" class="col-md-offset-2">
+                @{ Html.RenderAction("List", "Attachment", new { p = Model.Project_Id, isEditMode = true }); }
+            </div>
+        }
+
+        @Html.HiddenFor(model => model.Author_Id)
+        @Html.HiddenFor(model => model.Submit_Date)
+
+        @HtmlBuilder.Buttons("Save", ViewBag.CancelUrl)
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/Scripts/Custom/length-help.js")
+    @if (isAdmin)
+    {
+        <script type="text/javascript">
+            $(document).ready(function() {
+                // If school is set to anything other than Unassigned (value 0),
+                // and status is set to Submitted, change it to Assigned
+                setAssignedWhenSchoolSet();
+                $("#School_Id").change(setAssignedWhenSchoolSet);
+            });
+
+            function setAssignedWhenSchoolSet() {
+                var school = $("#School_Id");
+                var status = $("#Status_Id");
+                var statusAssigned = @( (int) Status.Enum.Assigned );
+                var statusUnassigned = @( (int) Status.Enum.Submitted );
+                var isSchoolAssigned = (school.val() != @School.UNASSIGNED_ID); // Causes Razor error when inside if()
+                if (isSchoolAssigned) {
+                    if (status.val() == statusUnassigned)  // If school assigned & status unassigned,
+                        status.val(statusAssigned);        // set status assigned.
+                } else if (status.val() == statusAssigned) // If school unassigned & status assigned,
+                    status.val(statusUnassigned);          // set status unassigned.
+            }
+        </script>
+    }
+    <script type="text/javascript">
+        // Transfer click event from attachment path field to file input
+        $(document).on("click", ".attachment-path", function() {
+            $(this).prev("div").children().children()[0].click();
+        });
+        
+        // Add another attachment field to form
+        $("#add-attachment").click(function() {
+            @{ string fieldHtml = HtmlBuilder.AttachmentField().ToString().Replace("\r", "\\\r"); };
+            $("#new-attachments").append('@Html.Raw(fieldHtml)');
+            return false;
+        });
+
+        // Show file name/count in attachment path field
+        $(document).on('change', '.btn-file :file', function() {
+            var input = $(this),
+                numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [numFiles, label]);
+        });
+        $(document).on('fileselect', '.btn-file :file', function(event, numFiles, label) {
+            var input = $(this).parents('.input-group').find(':text'),
+                log = numFiles > 1 ? numFiles + ' files selected' : label;
+        
+            if (input.length)
+                input.val(log);
+            else if (log)
+                alert(log);
+        });
+
+        // Delete item & refresh list
+        $(document).on("click", ".btn-delete", function() {
+            $.ajax({
+                url: $(this).attr("href"),
+                type: "POST",
+                cache: false,
+                async: true,
+                error: function (data) {
+                    alert("Error: " + data.statusText);
+                },
+                success: function (result) {
+                    $("#attachment-list").html(result);
+                }
+            });
+            return false;
+        });
+    </script>
+}

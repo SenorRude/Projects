@@ -1,0 +1,57 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+@section Styles
+{
+    <style>
+        .jumbotron {
+            display: table;
+            width: 100%;
+            min-width: 290px;
+            text-align: center;
+            padding: 30px 0;
+        }
+        .content {
+            display: table-cell;
+            padding: 0 15px;
+        }
+        #text {
+            margin-bottom: 10px;
+        }
+        #tagline {
+            margin-bottom: 20px;
+        }
+        #pic {
+            vertical-align: middle;
+        }
+        #bank-pic {
+            width: 100%;
+            height: auto;
+            min-width: 245px;
+            max-width: 343px;
+            max-height: 242px;
+        }
+        @@media (max-width: 500px) {
+            .jumbotron {
+                padding-top: 5px;
+            }
+            .content {
+                display: inline-block;
+            }
+            #bank-pic {
+                min-width: 100px;
+            }
+        }
+    </style>
+}
+
+<div class="jumbotron">
+    <div id="text" class="content">
+        <h1 id="tagline">Ideas wanted.</h1>
+        <p><a href="@Url.Action("Index", "Project")" class="btn btn-primary btn-lg">View Project Ideas &raquo;</a></p>
+        <p><a href="@Url.Action("Submit", "Project")" class="btn btn-primary btn-lg">Submit an Idea &raquo;</a></p>
+    </div>
+    <div id="pic" class="content">
+        <img id="bank-pic" class="img-rounded" src="/Content/Images/bank.jpg" />
+    </div>
+</div>

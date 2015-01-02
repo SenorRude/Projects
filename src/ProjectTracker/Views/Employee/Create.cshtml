@@ -1,0 +1,59 @@
+﻿@model Employee
+
+@{
+    ViewBag.Title = "Create User";
+}
+
+@HtmlBuilder.BreadcrumbTitle(Url, "Users", "Create")
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal short-fields">
+        <hr />
+        @Html.ValidationSummary(true)
+
+        @{
+            System.Linq.Expressions.Expression<Func<Employee, string>> expr = model => model.Username;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+
+            expr = model => model.Password;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.PasswordFor(expr, new { @class = "form-control length-help" }),
+                Html.ValidationMessageFor(expr),
+                true);
+
+            expr = model => model.FName;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+            
+            expr = model => model.LName;
+            @HtmlBuilder.TextField(
+                Html.LabelFor(expr, new { @class = "control-label col-md-2" }),
+                Html.EditorFor(expr, new { htmlAttributes = new { @class = "form-control length-help" } }),
+                Html.ValidationMessageFor(expr),
+                true);
+            
+            @HtmlBuilder.TextField(
+                Html.LabelFor(model => model.Role, new { @class = "control-label col-md-2" }),
+                Html.DropDownList("Role_Id", null, new { @class = "form-control" } ),
+                Html.ValidationMessageFor(model => model.Role_Id));
+        }
+
+        @HtmlBuilder.Buttons("Create", ViewBag.CancelUrl)
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/Scripts/Custom/length-help.js")
+}

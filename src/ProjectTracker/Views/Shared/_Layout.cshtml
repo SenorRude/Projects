@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="@Url.Content("~/favicon.ico?v=2")" />
+    <title>@ViewBag.Title - Project Tracker</title>
+    @Styles.Render("~/Content/css")
+    @RenderSection("Styles", required: false)
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-item" href="@Url.Action("Index", "Home")">
+                    <img class="navbar-logo" src="/Content/Images/logo.png" />
+                    <span>Project Tracker</span>
+                </a>
+            </div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="navbar-right dropdown">
+                    <button class="navbar-item btn hidden-xxs navbar-username dropdown-toggle" data-toggle="dropdown">@User.Identity.Name <span class="caret"></span></button>
+                    <a href="#" class="navbar-item visible-xxs-block dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span></a>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a href="@Url.Action("Logout", "Login")"><span class="glyphicon glyphicon-log-out"></span> Log Out</a></li>
+                    </ul>
+                </div>
+                <div class="navbar-right dropdown">
+                    <button class="navbar-item navbar-menu btn dropdown-toggle" data-toggle="dropdown">
+                        <span class="menu-icon">
+                            <span class="menu-icon-bar"></span>
+                            <span class="menu-icon-bar"></span>
+                            <span class="menu-icon-bar"></span>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a href="@Url.Action("Submit", "Project")"><span class="glyphicon glyphicon-plus-sign"></span> Submit an Idea</a></li>
+                        <li><a href="@Url.Action("Index", "Project")"><span class="glyphicon glyphicon-list"></span> View Project Ideas</a></li>
+                        @{
+                            bool isAdmin = Login.IsAdmin(Context);
+                            if (isAdmin)
+                            {
+                                <li><a href="@Url.Action("Archive", "Project")"><span class="glyphicon glyphicon-folder-open"></span> Archived Projects</a></li>
+                            }
+                            if (!Login.IsContributor(Context))
+                            {
+                                <li role="presentation" class="divider"></li>
+                                <li><a href="@Url.Action("Index", "School")"><span class="glyphicon glyphicon-book"></span> Schools</a></li>
+                                <li><a href="@Url.Action("Index", "Status")"><span class="glyphicon glyphicon-exclamation-sign"></span> Statuses</a></li>
+                                if (isAdmin)
+                                {
+                                    <li><a href="@Url.Action("Index", "Employee")"><span class="glyphicon glyphicon-user"></span> Users</a></li>
+                                }
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script type="text/javascript">
+            $(".dropdown").click(function () {           // When a dropdown is clicked...
+                if ($(this).hasClass("open"))            // if it was already open, allow click
+                    return true;
+                $(".dropdown.open").removeClass("open"); // if not, close any other open dropdown
+                $(this).addClass("open");                // and open this one.
+                return false;
+            });
+
+            // When a touch event is detected, add body class for "touch mode"
+            $("body").one("touchstart", function () {
+                $("body").addClass("touch");
+            })
+        </script>
+    }
+</body>
+</html>

@@ -1,0 +1,18 @@
+﻿@model Status
+
+@{
+    ViewBag.Title = "Status Details";
+}
+
+<h3><a href="@Url.Action("Index")">Statuses</a> > Details</h3>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Name)</dt>
+        <dd>@Html.DisplayFor(model => model.Name)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Projects)</dt>
+        <dd>@HtmlBuilder.ProjectsLink(Url, Model.Projects.Count(), new { stat = Model.Status_Id })</dd>
+    </dl>
+</div>

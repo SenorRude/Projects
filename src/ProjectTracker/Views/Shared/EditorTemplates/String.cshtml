@@ -1,0 +1,17 @@
+﻿@{
+    RouteValueDictionary htmlAttributes;
+    if (ViewData["htmlAttributes"] != null)
+    {
+        htmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(ViewData["htmlAttributes"]);
+    }
+    else
+    {
+        htmlAttributes = new RouteValueDictionary();
+    }
+    htmlAttributes.Add("placeholder", ViewData.ModelMetadata.Watermark);
+}
+@Html.TextBox(string.Empty, ViewData.TemplateInfo.FormattedModelValue, htmlAttributes)
+@if (htmlAttributes.ContainsKey("class") && htmlAttributes["class"].ToString().Contains("length-help"))
+{
+    <p class="help-block"></p>
+}

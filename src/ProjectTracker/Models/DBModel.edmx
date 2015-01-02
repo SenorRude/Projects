@@ -1,0 +1,687 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="ProjectTrackerModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Attachment">
+          <Key>
+            <PropertyRef Name="Attachment_Id" />
+          </Key>
+          <Property Name="Attachment_Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar(max)" Nullable="false" />
+          <Property Name="Project_Id" Type="int" Nullable="false" />
+          <Property Name="Uploader_Id" Type="int" Nullable="false" />
+          <Property Name="Upload_Date" Type="datetime" Nullable="false" />
+          <Property Name="Content_Type" Type="varchar(max)" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="Emp_Id" />
+          </Key>
+          <Property Name="Emp_Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FName" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="LName" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="Role_Id" Type="int" Nullable="false" />
+          <Property Name="Password" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="Username" Type="varchar" MaxLength="32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Employee_School">
+          <Key>
+            <PropertyRef Name="Emp_Id" />
+            <PropertyRef Name="School_Id" />
+          </Key>
+          <Property Name="Emp_Id" Type="int" Nullable="false" />
+          <Property Name="School_Id" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Project">
+          <Key>
+            <PropertyRef Name="Project_Id" />
+          </Key>
+          <Property Name="Project_Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="Short_Description" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="500" Nullable="false" />
+          <Property Name="Justification" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="Status_Id" Type="int" Nullable="false" />
+          <Property Name="Notes" Type="varchar" MaxLength="500" />
+          <Property Name="School_Id" Type="int" Nullable="false" />
+          <Property Name="Author_Id" Type="int" Nullable="false" />
+          <Property Name="Submit_Date" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Project_Edit">
+          <Key>
+            <PropertyRef Name="Edit_Id" />
+          </Key>
+          <Property Name="Edit_Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Project_Id" Type="int" Nullable="false" />
+          <Property Name="Editor_Id" Type="int" Nullable="false" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Project_Vote">
+          <Key>
+            <PropertyRef Name="Project_Id" />
+            <PropertyRef Name="Voter_Id" />
+          </Key>
+          <Property Name="Project_Id" Type="int" Nullable="false" />
+          <Property Name="Voter_Id" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Role">
+          <Key>
+            <PropertyRef Name="Role_Id" />
+          </Key>
+          <Property Name="Role_Id" Type="int" Nullable="false" />
+          <Property Name="Title" Type="varchar" MaxLength="32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="School">
+          <Key>
+            <PropertyRef Name="School_Id" />
+          </Key>
+          <Property Name="School_Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="64" Nullable="false" />
+          <Property Name="Short_Name" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="Contact_Name" Type="varchar" MaxLength="64" />
+          <Property Name="Contact_Title" Type="varchar" MaxLength="64" />
+          <Property Name="Email" Type="varchar" MaxLength="64" />
+          <Property Name="Phone" Type="varchar" MaxLength="32" />
+          <Property Name="Fax" Type="varchar" MaxLength="32" />
+          <Property Name="Street" Type="varchar" MaxLength="64" />
+          <Property Name="City" Type="varchar" MaxLength="64" />
+          <Property Name="State" Type="varchar" MaxLength="32" />
+          <Property Name="Zip" Type="varchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="Status">
+          <Key>
+            <PropertyRef Name="Status_Id" />
+          </Key>
+          <Property Name="Status_Id" Type="int" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Attachment_Project">
+          <End Role="Project" Type="Self.Project" Multiplicity="1" />
+          <End Role="Attachment" Type="Self.Attachment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Project">
+              <PropertyRef Name="Project_Id" />
+            </Principal>
+            <Dependent Role="Attachment">
+              <PropertyRef Name="Project_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Attachment_Uploader">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+          <End Role="Attachment" Type="Self.Attachment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Emp_Id" />
+            </Principal>
+            <Dependent Role="Attachment">
+              <PropertyRef Name="Uploader_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Employee_Role">
+          <End Role="Role" Type="Self.Role" Multiplicity="1" />
+          <End Role="Employee" Type="Self.Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Role">
+              <PropertyRef Name="Role_Id" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="Role_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Employee_School_Employee">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+          <End Role="Employee_School" Type="Self.Employee_School" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Emp_Id" />
+            </Principal>
+            <Dependent Role="Employee_School">
+              <PropertyRef Name="Emp_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Employee_School_School">
+          <End Role="School" Type="Self.School" Multiplicity="1" />
+          <End Role="Employee_School" Type="Self.Employee_School" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="School">
+              <PropertyRef Name="School_Id" />
+            </Principal>
+            <Dependent Role="Employee_School">
+              <PropertyRef Name="School_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_Author">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+          <End Role="Project" Type="Self.Project" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Emp_Id" />
+            </Principal>
+            <Dependent Role="Project">
+              <PropertyRef Name="Author_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_Edit_Editor">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+          <End Role="Project_Edit" Type="Self.Project_Edit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Emp_Id" />
+            </Principal>
+            <Dependent Role="Project_Edit">
+              <PropertyRef Name="Editor_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_Edit_Project">
+          <End Role="Project" Type="Self.Project" Multiplicity="1" />
+          <End Role="Project_Edit" Type="Self.Project_Edit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Project">
+              <PropertyRef Name="Project_Id" />
+            </Principal>
+            <Dependent Role="Project_Edit">
+              <PropertyRef Name="Project_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_School">
+          <End Role="School" Type="Self.School" Multiplicity="1" />
+          <End Role="Project" Type="Self.Project" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="School">
+              <PropertyRef Name="School_Id" />
+            </Principal>
+            <Dependent Role="Project">
+              <PropertyRef Name="School_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_Status">
+          <End Role="Status" Type="Self.Status" Multiplicity="1" />
+          <End Role="Project" Type="Self.Project" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Status">
+              <PropertyRef Name="Status_Id" />
+            </Principal>
+            <Dependent Role="Project">
+              <PropertyRef Name="Status_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_Vote_Project">
+          <End Role="Project" Type="Self.Project" Multiplicity="1" />
+          <End Role="Project_Vote" Type="Self.Project_Vote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Project">
+              <PropertyRef Name="Project_Id" />
+            </Principal>
+            <Dependent Role="Project_Vote">
+              <PropertyRef Name="Project_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_Vote_Voter">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+          <End Role="Project_Vote" Type="Self.Project_Vote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Emp_Id" />
+            </Principal>
+            <Dependent Role="Project_Vote">
+              <PropertyRef Name="Voter_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ProjectTrackerModelStoreContainer">
+          <EntitySet Name="Attachment" EntityType="Self.Attachment" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Employee_School" EntityType="Self.Employee_School" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Project" EntityType="Self.Project" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Project_Edit" EntityType="Self.Project_Edit" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Project_Vote" EntityType="Self.Project_Vote" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Role" EntityType="Self.Role" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="School" EntityType="Self.School" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Status" EntityType="Self.Status" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Attachment_Project" Association="Self.FK_Attachment_Project">
+            <End Role="Project" EntitySet="Project" />
+            <End Role="Attachment" EntitySet="Attachment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Attachment_Uploader" Association="Self.FK_Attachment_Uploader">
+            <End Role="Employee" EntitySet="Employee" />
+            <End Role="Attachment" EntitySet="Attachment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Employee_Role" Association="Self.FK_Employee_Role">
+            <End Role="Role" EntitySet="Role" />
+            <End Role="Employee" EntitySet="Employee" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Employee_School_Employee" Association="Self.FK_Employee_School_Employee">
+            <End Role="Employee" EntitySet="Employee" />
+            <End Role="Employee_School" EntitySet="Employee_School" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Employee_School_School" Association="Self.FK_Employee_School_School">
+            <End Role="School" EntitySet="School" />
+            <End Role="Employee_School" EntitySet="Employee_School" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_Author" Association="Self.FK_Project_Author">
+            <End Role="Employee" EntitySet="Employee" />
+            <End Role="Project" EntitySet="Project" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_Edit_Editor" Association="Self.FK_Project_Edit_Editor">
+            <End Role="Employee" EntitySet="Employee" />
+            <End Role="Project_Edit" EntitySet="Project_Edit" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_Edit_Project" Association="Self.FK_Project_Edit_Project">
+            <End Role="Project" EntitySet="Project" />
+            <End Role="Project_Edit" EntitySet="Project_Edit" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_School" Association="Self.FK_Project_School">
+            <End Role="School" EntitySet="School" />
+            <End Role="Project" EntitySet="Project" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_Status" Association="Self.FK_Project_Status">
+            <End Role="Status" EntitySet="Status" />
+            <End Role="Project" EntitySet="Project" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_Vote_Project" Association="Self.FK_Project_Vote_Project">
+            <End Role="Project" EntitySet="Project" />
+            <End Role="Project_Vote" EntitySet="Project_Vote" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_Vote_Voter" Association="Self.FK_Project_Vote_Voter">
+            <End Role="Employee" EntitySet="Employee" />
+            <End Role="Project_Vote" EntitySet="Project_Vote" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ProjectTrackerModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="ProjectTrackerEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Employees" EntityType="ProjectTrackerModel.Employee" />
+          <EntitySet Name="Projects" EntityType="ProjectTrackerModel.Project" />
+          <EntitySet Name="Roles" EntityType="ProjectTrackerModel.Role" />
+          <EntitySet Name="Schools" EntityType="ProjectTrackerModel.School" />
+          <AssociationSet Name="FK_Employee_Role" Association="ProjectTrackerModel.FK_Employee_Role">
+            <End Role="Role" EntitySet="Roles" />
+            <End Role="Employee" EntitySet="Employees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_Author" Association="ProjectTrackerModel.FK_Project_Author">
+            <End Role="Employee" EntitySet="Employees" />
+            <End Role="Project" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_School" Association="ProjectTrackerModel.FK_Project_School">
+            <End Role="School" EntitySet="Schools" />
+            <End Role="Project" EntitySet="Projects" />
+          </AssociationSet>
+          <EntitySet Name="Status" EntityType="ProjectTrackerModel.Status" />
+          <AssociationSet Name="FK_Project_Status" Association="ProjectTrackerModel.FK_Project_Status">
+            <End Role="Status" EntitySet="Status" />
+            <End Role="Project" EntitySet="Projects" />
+          </AssociationSet>
+          <AssociationSet Name="Employee_School" Association="ProjectTrackerModel.Employee_School">
+            <End Role="Employee" EntitySet="Employees" />
+            <End Role="School" EntitySet="Schools" />
+          </AssociationSet>
+          <EntitySet Name="Attachments" EntityType="ProjectTrackerModel.Attachment" />
+          <AssociationSet Name="FK_Attachment_Project" Association="ProjectTrackerModel.FK_Attachment_Project">
+            <End Role="Project" EntitySet="Projects" />
+            <End Role="Attachment" EntitySet="Attachments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Attachment_Uploader" Association="ProjectTrackerModel.FK_Attachment_Uploader">
+            <End Role="Employee" EntitySet="Employees" />
+            <End Role="Attachment" EntitySet="Attachments" />
+          </AssociationSet>
+          <EntitySet Name="ProjectEdits" EntityType="ProjectTrackerModel.ProjectEdit" />
+          <AssociationSet Name="FK_Project_Edit_Editor" Association="ProjectTrackerModel.FK_Project_Edit_Editor">
+            <End Role="Employee" EntitySet="Employees" />
+            <End Role="Project_Edit" EntitySet="ProjectEdits" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Project_Edit_Project" Association="ProjectTrackerModel.FK_Project_Edit_Project">
+            <End Role="Project" EntitySet="Projects" />
+            <End Role="Project_Edit" EntitySet="ProjectEdits" />
+          </AssociationSet>
+          <AssociationSet Name="Project_Vote" Association="ProjectTrackerModel.Project_Vote">
+            <End Role="Project" EntitySet="Projects" />
+            <End Role="Employee" EntitySet="Employees" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="Emp_Id" />
+          </Key>
+          <Property Name="Emp_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Username" Type="String" MaxLength="32" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="FName" Type="String" MaxLength="32" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="LName" Type="String" MaxLength="32" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Role_Id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Role" Relationship="ProjectTrackerModel.FK_Employee_Role" FromRole="Employee" ToRole="Role" />
+          <NavigationProperty Name="Projects" Relationship="ProjectTrackerModel.FK_Project_Author" FromRole="Employee" ToRole="Project" />
+          <NavigationProperty Name="Schools" Relationship="ProjectTrackerModel.Employee_School" FromRole="Employee" ToRole="School" />
+          <NavigationProperty Name="Attachments" Relationship="ProjectTrackerModel.FK_Attachment_Uploader" FromRole="Employee" ToRole="Attachment" />
+          <NavigationProperty Name="Edits" Relationship="ProjectTrackerModel.FK_Project_Edit_Editor" FromRole="Employee" ToRole="Project_Edit" />
+          <NavigationProperty Name="VotedProjects" Relationship="ProjectTrackerModel.Project_Vote" FromRole="Employee" ToRole="Project" />
+        </EntityType>
+        <EntityType Name="Project">
+          <Key>
+            <PropertyRef Name="Project_Id" />
+          </Key>
+          <Property Name="Project_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="32" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Short_Description" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Justification" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Notes" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status_Id" Type="Int32" Nullable="false" />
+          <Property Name="School_Id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Status" Relationship="ProjectTrackerModel.FK_Project_Status" FromRole="Project" ToRole="Status" />
+          <NavigationProperty Name="School" Relationship="ProjectTrackerModel.FK_Project_School" FromRole="Project" ToRole="School" />
+          <NavigationProperty Name="Author" Relationship="ProjectTrackerModel.FK_Project_Author" FromRole="Project" ToRole="Employee" />
+          <Property Name="Author_Id" Type="Int32" Nullable="false" />
+          <Property Name="Submit_Date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Attachments" Relationship="ProjectTrackerModel.FK_Attachment_Project" FromRole="Project" ToRole="Attachment" />
+          <NavigationProperty Name="Edits" Relationship="ProjectTrackerModel.FK_Project_Edit_Project" FromRole="Project" ToRole="Project_Edit" />
+          <NavigationProperty Name="Voters" Relationship="ProjectTrackerModel.Project_Vote" FromRole="Project" ToRole="Employee" />
+        </EntityType>
+        <EntityType Name="Role">
+          <Key>
+            <PropertyRef Name="Role_Id" />
+          </Key>
+          <Property Name="Role_Id" Type="Int32" Nullable="false" />
+          <Property Name="Title" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Employees" Relationship="ProjectTrackerModel.FK_Employee_Role" FromRole="Role" ToRole="Employee" />
+        </EntityType>
+        <EntityType Name="School">
+          <Key>
+            <PropertyRef Name="School_Id" />
+          </Key>
+          <Property Name="School_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="64" FixedLength="false" Unicode="false" />
+          <Property Name="Short_Name" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Projects" Relationship="ProjectTrackerModel.FK_Project_School" FromRole="School" ToRole="Project" />
+          <Property Name="Contact_Name" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+          <Property Name="Contact_Title" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+          <Property Name="Phone" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="Fax" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="Street" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+          <Property Name="City" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+          <Property Name="State" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="Zip" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Employees" Relationship="ProjectTrackerModel.Employee_School" FromRole="School" ToRole="Employee" />
+        </EntityType>
+        <Association Name="FK_Employee_Role">
+          <End Type="ProjectTrackerModel.Role" Role="Role" Multiplicity="1" />
+          <End Type="ProjectTrackerModel.Employee" Role="Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Role">
+              <PropertyRef Name="Role_Id" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="Role_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_Author">
+          <End Type="ProjectTrackerModel.Employee" Role="Employee" Multiplicity="1" />
+          <End Type="ProjectTrackerModel.Project" Role="Project" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Emp_Id" />
+            </Principal>
+            <Dependent Role="Project">
+              <PropertyRef Name="Author_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_School">
+          <End Type="ProjectTrackerModel.School" Role="School" Multiplicity="1" />
+          <End Type="ProjectTrackerModel.Project" Role="Project" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="School">
+              <PropertyRef Name="School_Id" />
+            </Principal>
+            <Dependent Role="Project">
+              <PropertyRef Name="School_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Status">
+          <Key>
+            <PropertyRef Name="Status_Id" />
+          </Key>
+          <Property Name="Status_Id" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Projects" Relationship="ProjectTrackerModel.FK_Project_Status" FromRole="Status" ToRole="Project" />
+        </EntityType>
+        <Association Name="FK_Project_Status">
+          <End Type="ProjectTrackerModel.Status" Role="Status" Multiplicity="1" />
+          <End Type="ProjectTrackerModel.Project" Role="Project" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Status">
+              <PropertyRef Name="Status_Id" />
+            </Principal>
+            <Dependent Role="Project">
+              <PropertyRef Name="Status_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Employee_School">
+          <End Type="ProjectTrackerModel.Employee" Role="Employee" Multiplicity="*" />
+          <End Type="ProjectTrackerModel.School" Role="School" Multiplicity="*" />
+        </Association>
+        <EntityType Name="Attachment">
+          <Key>
+            <PropertyRef Name="Attachment_Id" />
+          </Key>
+          <Property Name="Attachment_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Project_Id" Type="Int32" Nullable="false" />
+          <Property Name="Uploader_Id" Type="Int32" Nullable="false" />
+          <Property Name="Upload_Date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Project" Relationship="ProjectTrackerModel.FK_Attachment_Project" FromRole="Attachment" ToRole="Project" />
+          <NavigationProperty Name="Uploader" Relationship="ProjectTrackerModel.FK_Attachment_Uploader" FromRole="Attachment" ToRole="Employee" />
+          <Property Name="Content_Type" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <Association Name="FK_Attachment_Project">
+          <End Type="ProjectTrackerModel.Project" Role="Project" Multiplicity="1" />
+          <End Type="ProjectTrackerModel.Attachment" Role="Attachment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Project">
+              <PropertyRef Name="Project_Id" />
+            </Principal>
+            <Dependent Role="Attachment">
+              <PropertyRef Name="Project_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Attachment_Uploader">
+          <End Type="ProjectTrackerModel.Employee" Role="Employee" Multiplicity="1" />
+          <End Type="ProjectTrackerModel.Attachment" Role="Attachment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Emp_Id" />
+            </Principal>
+            <Dependent Role="Attachment">
+              <PropertyRef Name="Uploader_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="ProjectEdit">
+          <Key>
+            <PropertyRef Name="Edit_Id" />
+          </Key>
+          <Property Name="Edit_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Project_Id" Type="Int32" Nullable="false" />
+          <Property Name="Editor_Id" Type="Int32" Nullable="false" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Editor" Relationship="ProjectTrackerModel.FK_Project_Edit_Editor" FromRole="Project_Edit" ToRole="Employee" />
+          <NavigationProperty Name="Project" Relationship="ProjectTrackerModel.FK_Project_Edit_Project" FromRole="Project_Edit" ToRole="Project" />
+        </EntityType>
+        <Association Name="FK_Project_Edit_Editor">
+          <End Type="ProjectTrackerModel.Employee" Role="Employee" Multiplicity="1" />
+          <End Type="ProjectTrackerModel.ProjectEdit" Role="Project_Edit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Emp_Id" />
+            </Principal>
+            <Dependent Role="Project_Edit">
+              <PropertyRef Name="Editor_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Project_Edit_Project">
+          <End Type="ProjectTrackerModel.Project" Role="Project" Multiplicity="1" />
+          <End Type="ProjectTrackerModel.ProjectEdit" Role="Project_Edit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Project">
+              <PropertyRef Name="Project_Id" />
+            </Principal>
+            <Dependent Role="Project_Edit">
+              <PropertyRef Name="Project_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Project_Vote">
+          <End Type="ProjectTrackerModel.Project" Role="Project" Multiplicity="*" />
+          <End Type="ProjectTrackerModel.Employee" Role="Employee" Multiplicity="*" />
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ProjectTrackerModelStoreContainer" CdmEntityContainer="ProjectTrackerEntities">
+          <EntitySetMapping Name="Employees">
+            <EntityTypeMapping TypeName="ProjectTrackerModel.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="Role_Id" ColumnName="Role_Id" />
+                <ScalarProperty Name="LName" ColumnName="LName" />
+                <ScalarProperty Name="FName" ColumnName="FName" />
+                <ScalarProperty Name="Emp_Id" ColumnName="Emp_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Projects">
+            <EntityTypeMapping TypeName="ProjectTrackerModel.Project">
+              <MappingFragment StoreEntitySet="Project">
+                <ScalarProperty Name="Status_Id" ColumnName="Status_Id" />
+                <ScalarProperty Name="Submit_Date" ColumnName="Submit_Date" />
+                <ScalarProperty Name="Justification" ColumnName="Justification" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="Short_Description" ColumnName="Short_Description" />
+                <ScalarProperty Name="School_Id" ColumnName="School_Id" />
+                <ScalarProperty Name="Author_Id" ColumnName="Author_Id" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Project_Id" ColumnName="Project_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Roles">
+            <EntityTypeMapping TypeName="ProjectTrackerModel.Role">
+              <MappingFragment StoreEntitySet="Role">
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Role_Id" ColumnName="Role_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Schools">
+            <EntityTypeMapping TypeName="ProjectTrackerModel.School">
+              <MappingFragment StoreEntitySet="School">
+                <ScalarProperty Name="Short_Name" ColumnName="Short_Name" />
+                <ScalarProperty Name="Fax" ColumnName="Fax" />
+                <ScalarProperty Name="Contact_Title" ColumnName="Contact_Title" />
+                <ScalarProperty Name="Contact_Name" ColumnName="Contact_Name" />
+                <ScalarProperty Name="Zip" ColumnName="Zip" />
+                <ScalarProperty Name="State" ColumnName="State" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="Street" ColumnName="Street" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="School_Id" ColumnName="School_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Status">
+            <EntityTypeMapping TypeName="ProjectTrackerModel.Status">
+              <MappingFragment StoreEntitySet="Status">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Status_Id" ColumnName="Status_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="Employee_School" TypeName="ProjectTrackerModel.Employee_School" StoreEntitySet="Employee_School">
+            <EndProperty Name="School">
+              <ScalarProperty Name="School_Id" ColumnName="School_Id" />
+            </EndProperty>
+            <EndProperty Name="Employee">
+              <ScalarProperty Name="Emp_Id" ColumnName="Emp_Id" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <EntitySetMapping Name="Attachments">
+            <EntityTypeMapping TypeName="ProjectTrackerModel.Attachment">
+              <MappingFragment StoreEntitySet="Attachment">
+                <ScalarProperty Name="Content_Type" ColumnName="Content_Type" />
+                <ScalarProperty Name="Upload_Date" ColumnName="Upload_Date" />
+                <ScalarProperty Name="Uploader_Id" ColumnName="Uploader_Id" />
+                <ScalarProperty Name="Project_Id" ColumnName="Project_Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Attachment_Id" ColumnName="Attachment_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProjectEdits">
+            <EntityTypeMapping TypeName="ProjectTrackerModel.ProjectEdit">
+              <MappingFragment StoreEntitySet="Project_Edit">
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Editor_Id" ColumnName="Editor_Id" />
+                <ScalarProperty Name="Project_Id" ColumnName="Project_Id" />
+                <ScalarProperty Name="Edit_Id" ColumnName="Edit_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="Project_Vote" TypeName="ProjectTrackerModel.Project_Vote" StoreEntitySet="Project_Vote">
+            <EndProperty Name="Employee">
+              <ScalarProperty Name="Emp_Id" ColumnName="Voter_Id" />
+            </EndProperty>
+            <EndProperty Name="Project">
+              <ScalarProperty Name="Project_Id" ColumnName="Project_Id" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

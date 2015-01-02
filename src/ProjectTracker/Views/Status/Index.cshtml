@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Status>
+
+@{
+    ViewBag.Title = "Statuses";
+}
+
+<h2 class="list-title">Statuses</h2>
+
+<table class="table table-condensed table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Projects)</th>
+        </tr>
+    </thead>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <a href="@Url.Action("Details", new { id = item.Status_Id })">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </a>
+            </td>
+            <td>@HtmlBuilder.ProjectsLink(Url, item.Projects.Count(), new { stat = item.Status_Id }, true)</td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,328 @@
+﻿@model PagedList.IPagedList<Project>
+@using PagedList.Mvc;
+@section Styles
+{
+    <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+}
+
+@{
+    bool isAdmin = Login.IsAdmin(Context);
+    ViewBag.Title = "Project Ideas";
+}
+
+<h2 class="list-title">@Html.Raw(ViewBag.Title)</h2>
+<a class="list-new" href="@Url.Action("Submit")">
+    <span class="glyphicon glyphicon-plus-sign"></span> Submit Idea
+</a>
+
+@{
+    bool autoExpandSearch = Request.Params["opt"] == "1";
+    string sortParam = Request.Params["sort"] ?? string.Empty;
+}
+@using (Html.BeginForm("Index", "Project", FormMethod.Get, new { @class = "filters-form" }))
+{
+    <div class="input-group filters-keyword">
+        @Html.TextBox("q", null, new { @class = "form-control",
+                                       title = "Searches the Title, Quick Pitch, Description, Justification, and Notes" })
+        <span class="input-group-btn">
+            <button class="btn btn-default" title="Search" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+            @if (Request.QueryString.Count > 0)
+            {
+                <a class="btn btn-default" title="Clear search and options" href="@Url.Action("Index")"><span class="glyphicon glyphicon-remove"></span></a>
+            }
+        </span>
+    </div>
+    <div>
+        <a href="#" class="filters-more-link" onclick="return false">@(autoExpandSearch ? "Hide options" : "Search options")</a>
+    </div>
+    <div class="list-expand-detail filters-more @(autoExpandSearch ? "expanded" : string.Empty)">
+        <div class="filters-hidden">
+            @{ string checkedAttr = (autoExpandSearch ? "checked" : string.Empty); }
+            <input hidden id="opt" name="opt" type="checkbox" value="1" @Html.Raw(checkedAttr) />
+            @Html.Hidden("usr")
+            @Html.Hidden("p")
+        </div>
+        <div class="filter">
+            <label class="control-label" for="auth">Author Contains</label>
+            @Html.TextBox("auth", null, new { @class = "form-control" })
+        </div>
+        <div class="filter">
+            <label class="control-label" for="sort">Sort By</label>
+            <select id="sort" name="sort" class="form-control">
+                <option value="v" @{  if (sortParam == "v")  { @Html.Raw("selected=\"selected\"") } }>Votes, least first</option>
+                <option value="vd" @{ if (sortParam == "vd") { @Html.Raw("selected=\"selected\"") } }>Votes, most first</option>
+                <option value="t" @{  if (sortParam == "t")  { @Html.Raw("selected=\"selected\"") } }>Title, A to Z</option>
+                <option value="td" @{ if (sortParam == "td") { @Html.Raw("selected=\"selected\"") } }>Title, Z to A</option>
+                <option value="c" @{  if (sortParam == "c")  { @Html.Raw("selected=\"selected\"") } }>Date Created, oldest first</option>
+                <option value="cd" @{ if (sortParam == "cd") { @Html.Raw("selected=\"selected\"") } }>Date Created, newest first</option>
+                <option value="e" @{  if (sortParam == "e")  { @Html.Raw("selected=\"selected\"") } }>Date Edited, oldest first</option>
+                <option value="ed" @{ if (sortParam == "ed" || string.IsNullOrWhiteSpace(sortParam)) { @Html.Raw("selected=\"selected\"") } }>Date Edited, newest first</option>
+                <option value="a" @{  if (sortParam == "a")  { @Html.Raw("selected=\"selected\"") } }>Author Name, A to Z</option>
+                <option value="ad" @{ if (sortParam == "ad") { @Html.Raw("selected=\"selected\"") } }>Author Name, Z to A</option>
+            </select>
+        </div>
+        <div class="filters-group">
+            <div class="filter" title="Show only projects with this status">
+                <label class="control-label" for="stat">Status</label>
+                @Html.DropDownList("stat", null, "Any", new { @class = "form-control" })
+            </div>
+            <div class="filter" title="Show only projects assigned to this school">
+                <label class="control-label" for="stat">School</label>
+                @Html.DropDownList("sch", null, "Any", new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="filter" title="How many projects to show per page">
+            <label class="control-label" for="ps">Per Page</label>
+            @Html.DropDownList("ps", null, null, new { @class = "form-control" })
+        </div>
+        <div class="filters-group filters-checkboxes">
+            <div class="filter" title="Show only projects you submitted">
+                <label class="control-label" for="my">My Ideas</label>
+                @{ checkedAttr = (Request.Params["my"] == "1" ? "checked" : string.Empty); }
+                <input type="checkbox" id="my" name="my" value="1" @Html.Raw(checkedAttr) />
+            </div>
+            @if (Login.IsAmbassador(Context) || Login.IsMentor(Context))
+            {
+                <div class="filter" title="Show only projects assigned to your assigned schools">
+                    <label class="control-label" for="mysch">My Schools</label>
+                    @{ checkedAttr = (Request.Params["mysch"] == "1" ? "checked" : string.Empty); }
+                    <input type="checkbox" id="mysch" name="mysch" value="1" @Html.Raw(checkedAttr) />
+                </div>
+            }
+            @if (isAdmin)
+            {
+                <div class="filter" title="Include archived projects in list">
+                    <label class="control-label" for="arch">Show Archived</label>
+                    @{ checkedAttr = (Request.Params["arch"] == "1" ? "checked" : string.Empty); }
+                    <input type="checkbox" id="arch" name="arch" value="1" @Html.Raw(checkedAttr) />
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<div id="list">
+    @if (Model.Count() == 0)
+    {
+        <p>No projects match the given criteria.</p>
+    }
+    else
+    {
+        bool isDesc = (string.IsNullOrWhiteSpace(sortParam) || sortParam.EndsWith("d"));
+        <table class="table table-striped table-hover table-condensed">
+            <thead>
+                <tr>
+                    <th class="votes-heading">
+                        <a class="sort-heading" href="@ViewBag.SortVotesUrl">Votes</a>
+                        @if (sortParam.StartsWith("v"))
+                        {
+                            if (isDesc)
+                            { <span class="caret" title="Descending"></span> }
+                            else
+                            { <span class="caret-up" title="Ascending"></span> }
+                        }
+                    </th>
+                    <th>
+                        <a class="sort-heading" href="@ViewBag.SortTitleUrl">Title</a>
+                        @if (sortParam.StartsWith("t"))
+                        {
+                            if (isDesc)
+                            { <span class="caret" title="Descending"></span> }
+                            else
+                            { <span class="caret-up" title="Ascending"></span> }
+                        }
+                    </th>
+                    <th class="hidden-xxs">
+                        <a class="sort-heading" href="@ViewBag.SortCreatedUrl">Created</a>
+                        @if (sortParam.StartsWith("c"))
+                        {
+                            if (isDesc)
+                            { <span class="caret" title="Descending"></span> }
+                            else
+                            { <span class="caret-up" title="Ascending"></span> }
+                        }
+                    </th>
+                    <th class="hidden-xxs">
+                        <a class="sort-heading" href="@ViewBag.SortEditedUrl">Edited</a>
+                        @if (string.IsNullOrWhiteSpace(sortParam) || sortParam.StartsWith("e"))
+                        {
+                            if (isDesc)
+                            { <span class="caret" title="Descending"></span> }
+                            else
+                            { <span class="caret-up" title="Ascending"></span> }
+                        }
+                    </th>
+                </tr>
+            </thead>
+
+            @foreach (var item in Model)
+            {
+                <tr class="list-row">
+                    <td class="text-center">
+                        @{ bool hasVoted = item.Voters.Any(v => Login.DoesUserIdMatch(Context, v.Emp_Id)); }
+                        @HtmlBuilder.VoteButton(Url, hasVoted, item)
+                    </td>
+                    <td>
+                        <span class="list-item-title">@HtmlBuilder.DetailsLink(Url, "Project", item.Project_Id, item.Title, null, true)</span>
+                        @{
+                            bool isAuthor = (item.Author_Id == ViewBag.ThisEmployee.Emp_Id);
+                            bool canEdit = (isAdmin || isAuthor || ViewBag.ThisEmployee.CanEdit(item));
+                            if (isAuthor)
+                            {
+                                <span class="label label-success your-idea">Your Idea</span>
+                            }
+                        }
+                        <span class="list-hover-detail list-actions @if (isAdmin) { @Html.Raw("admin-list-actions"); }">
+                            @if (canEdit)
+                            { @HtmlBuilder.EditItemLink(Url, "Project", item.Project_Id) }
+                            @if (isAdmin)
+                            { @HtmlBuilder.DeleteItemLink(Url, "Project", item.Project_Id) }
+                        </span>
+
+                        <div class="list-item-info">
+                            @Html.DisplayFor(model => item.Short_Description)
+                            <a href="#" class="list-hover-detail list-expand-link" onclick="return false">More</a>
+                            <div class="list-expand-detail">
+                                @HtmlBuilder.TextWithBreaks(item.Description)
+                                <div>
+                                    <em>
+                                        @if (item.Status.Is(Status.Enum.Submitted))
+                                        { @HtmlBuilder.DetailsLink(Url, "Status", item.Status_Id, item.Status.Name) }
+                                        else
+                                        {
+                                            @Html.Raw(HtmlExtensions.Concat(
+                                                HtmlBuilder.DetailsLink(Url, "School", item.School_Id, item.School.Short_Name, item.School.Name),
+                                                new HtmlString(" — "),
+                                                HtmlBuilder.DetailsLink(Url, "Status", item.Status_Id, item.Status.Name)))
+                                        }
+                                    </em>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="hidden-xxs">
+                        @Html.DisplayFor(modelItem => item.Submit_Date)
+                        <br />
+                        @HtmlBuilder.DetailsLink(Url, "Employee", item.Author_Id, item.Author.FullName,
+                                                 item.Author.Username + ", " + item.Author.Role.Title)
+                    </td>
+                    <td class="hidden-xxs">
+                        @if (item.Edits.Count > 0)
+                        {
+                            @Html.DisplayFor(modelItem => item.LastEdit.Date)
+                            <br />
+                            @HtmlBuilder.DetailsLink(Url, "Employee", item.LastEdit.Editor_Id, item.LastEdit.Editor.FullName,
+                                                     item.LastEdit.Editor.Username + ", " + item.LastEdit.Editor.Role.Title)
+                        }
+                    </td>
+                </tr>
+            }
+        </table>
+
+        <div class="pagination-supercontainer">
+            @if (Model.PageCount > 1)
+            {
+                @Html.PagedListPager(Model, p => Url.ActionWithParams("Index", new { p }))
+            }
+            <p class="help-block active">Showing @Model.FirstItemOnPage – @Model.LastItemOnPage out of @Model.TotalItemCount</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/Custom/vote.js")
+    <script type="text/javascript">
+        /*
+            Gracefully convert normal hover behavior to handle touchscreens.
+            Normally, one tap triggers :hover, then a click — so links that are only
+            visible on :hover can get revealed then clicked with a single tap.
+            We want the first tap to "hover", and to only allow actual clicks while "hovering".
+        */
+        // Disable table-hover
+        $("body").one("touchstart", function () {
+            $(".table-hover").removeClass("table-hover");
+        })
+        // Allow tapping directly on the title & vote button
+        $(".list-item-title").on("touchstart", function () {
+            $(this).children()[0].click();
+        });
+        $(".btn-vote").on("touchstart", function () {
+            if (!$(this).parents(".list-row").hasClass("hover"))
+                $(this)[0].click();
+        });
+        // If not on title, first tap adds .hover, which then allows second tap to take action.
+        $(".list-row").on("touchstart", function () {
+            $(this).one("touchmove", function () { // Allow swiping
+                return true;
+            })
+            $(this).one("touchend", function () {
+                $(".dropdown.open").removeClass("open"); // Close dropdown
+                if ($(this).hasClass("hover")) {
+                    $('.list-row').not(this).removeClass("hover");
+                    return true;
+                }
+                else {
+                    $(".list-row.hover").removeClass("hover");
+                    $(this).addClass("hover");
+                    return false;
+                }
+            });
+        });
+
+        /*
+            Expanding additional details
+        */
+        $(".filters-more-link").click(function () {
+            var areOptionsExpanded = toggleExpand($(this), "Search options", "Hide options", true);
+            // If search options are expanded, include "opt=1" in column sort heading link URLs.
+            $(".sort-heading, .pagination li:not(.active) a").each(function () {
+                var url = $(this).attr("href");
+                if (areOptionsExpanded) {
+                    if ($(this).attr("href").indexOf("?") > 0)
+                        $(this).attr("href", url.concat("&opt=1"));
+                    else
+                        $(this).attr("href", url.concat("?opt=1"));
+                    $("#opt").prop("checked", true);
+                }
+                else {
+                    $(this).attr("href", $(this).attr("href").replace("&opt=1", ""));  // Try not-first of multiple params.
+                    $(this).attr("href", $(this).attr("href").replace("opt=1&", ""));  // Try first of multiple params.
+                    $(this).attr("href", $(this).attr("href").replace("?opt=1", ""));  // Try only param.
+                    $("#opt").prop("checked", false);
+                }
+            });
+        });
+        $(".list-expand-link").click(function () {
+            toggleExpand($(this), "More", "Less", false);
+        });
+
+        // If isDetailCousin, search cousin elements (child elements of the expand link's grandparent element)
+        // for the detail element.
+        function toggleExpand($linkElem, hiddenTxt, shownTxt, isDetailCousin) {
+            var $moreStuff = isDetailCousin
+                             ? $linkElem.parent().parent().find(".list-expand-detail")
+                             : $linkElem.next(".list-expand-detail");
+            $moreStuff.toggleClass("expanded");
+            if ($moreStuff.hasClass("expanded"))
+                $linkElem.text(shownTxt);
+            else
+                $linkElem.text(hiddenTxt);
+            return $moreStuff.hasClass("expanded");
+        }
+
+        /*
+            Excluding empty fields from filter submit
+        */
+        $(".filters-form").submit(function () {
+            // Get empty <input> elements & <select> elements where selected option value is blank
+            var $emptyInputs = $(".filters-form input").filter(function () { return $(this).val() === ""; });
+            var $emptySelects = $(".filters-form select:has(option:selected[value=''])");
+            $emptyInputs.attr("disabled", "disabled");
+            $emptySelects.attr("disabled", "disabled");
+        });
+
+        $(".filters-form input[type=checkbox], .filters-form select").change(function () {
+            $(".filters-form button[type=submit]")[0].click();
+        })
+    </script>
+}

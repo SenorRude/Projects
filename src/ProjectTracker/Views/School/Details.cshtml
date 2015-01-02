@@ -1,0 +1,114 @@
+﻿@model School
+
+@{
+    bool isAdmin = Login.IsAdmin(Context);
+    ViewBag.Title = "School Details";
+}
+
+<div class="details-header open">
+    @HtmlBuilder.BreadcrumbTitle(Url, "Schools", "Details")
+    <hr />
+    @if (isAdmin || Login.IsAmbassador(Context))
+    {
+        <p class="details-actions">
+            @HtmlBuilder.EditItemLink(Url, "School", Model.School_Id)
+            @if (isAdmin && Model.Projects.Count() == 0)
+            {
+                @HtmlBuilder.DeleteItem()
+            }
+        </p>
+    }
+</div>
+
+@if (isAdmin && Model.Projects.Count() == 0)
+{
+    <div class="details-delete">
+        <h3>Are you sure?</h3>
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @HtmlBuilder.DeleteConfirmButtons()
+        }
+        <hr />
+    </div>
+}
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Name)</dt>
+        <dd>@Html.DisplayFor(model => model.Name)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Short_Name)</dt>
+        <dd>@Html.DisplayFor(model => model.Short_Name)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Projects)</dt>
+        <dd>@HtmlBuilder.ProjectsLink(Url, Model.Projects.Count(), new { sch = Model.School_Id })</dd>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ContactInfo))
+        {
+            <dt>@Html.DisplayNameFor(model => model.ContactInfo)</dt>
+            <dd>
+                <address>
+                    @{
+                        string contactInfo = (string.IsNullOrWhiteSpace(Model.Contact)
+                                              ? string.Empty
+                                              : Model.Contact_Name + ", <em>" + Model.Contact_Title + "</em><br />");
+                        string email = (string.IsNullOrWhiteSpace(Model.Email)
+                                        ? string.Empty
+                                        : "<a href='mailto:" + Model.Email + "'>" + Model.Email + "</a><br />");
+                        string phone = (string.IsNullOrWhiteSpace(Model.Phone)
+                                        ? string.Empty
+                                        : "<abbr title='Phone'>P:</abbr> " + Model.Phone + "<br />");
+                        string fax = (string.IsNullOrWhiteSpace(Model.Phone)
+                                        ? string.Empty
+                                        : "<abbr title='Fax'>F:</abbr> " + Model.Fax + "<br />");
+                    }
+                    @Html.Raw(contactInfo + email + phone + fax + Model.Address)
+                </address>
+            </dd>
+        }
+        
+        <dt>Ambassadors</dt>
+        <dd>
+            @if (Model.Ambassadors.Count > 0)
+            {
+                <div>
+                    @foreach (Employee e in Model.Ambassadors)
+                    {
+                        @HtmlBuilder.DetailsLink(Url, "Employee", e.Emp_Id, e.FullName)
+                        <br />
+                    }
+                </div>
+            }
+            else
+            {
+                @Html.Raw("None")
+            }
+        </dd>
+
+        <dt>Mentors</dt>
+        <dd>
+            @if (Model.Mentors.Count > 0)
+            {
+                <div>
+                    @foreach (Employee e in Model.Mentors)
+                    {
+                        @HtmlBuilder.DetailsLink(Url, "Employee", e.Emp_Id, e.FullName)
+                        <br />
+                    }
+                </div>
+            }
+            else
+            {
+                @Html.Raw("None")
+            }
+        </dd>
+    </dl>
+</div>
+
+@if (isAdmin && Model.Projects.Count() == 0)
+{
+    @section Scripts {
+        @Scripts.Render("~/Scripts/Custom/details-delete.js")
+    }
+}

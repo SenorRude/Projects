@@ -1,0 +1,51 @@
+﻿@model IEnumerable<School>
+
+@{
+    bool isAdmin = Login.IsAdmin(Context);
+    bool isAmbassasdor = Login.IsAmbassador(Context);
+    ViewBag.Title = "Schools";
+}
+
+<h2 class="list-title">Schools</h2>
+@if (isAdmin)
+{
+    <a class="list-new" href="@Url.Action("Add", "School")">
+        <span class="glyphicon glyphicon-plus-sign"></span> Add New
+    </a>
+}
+
+<table class="table table-striped table-hover table-condensed">
+    <thead>
+        <tr>
+            @if (isAdmin || isAmbassasdor)
+            {
+                <th></th>
+            }
+            <th>@Html.DisplayNameFor(model => model.Name)</th>
+            <th class="hidden-xs">@Html.DisplayNameFor(model => model.Short_Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Projects)</th>
+            <th class="hidden-xxs">@Html.DisplayNameFor(model => model.Ambassadors)</th>
+            <th class="hidden-xxs">@Html.DisplayNameFor(model => model.Mentors)</th>
+        </tr>
+    </thead>
+
+@foreach (var item in Model) {
+    <tr>
+        @if (isAdmin || isAmbassasdor)
+        {
+            <td class="list-actions @if (isAdmin && item.Projects.Count() == 0) { @Html.Raw("admin-list-actions"); }">
+                @if (isAdmin && item.Projects.Count() == 0)
+                {
+                    @HtmlBuilder.DeleteItemLink(Url, "School", item.School_Id);
+                }
+                @HtmlBuilder.EditItemLink(Url, "School", item.School_Id)
+            </td>
+        }
+        <td>@HtmlBuilder.DetailsLink(Url, "School", item.School_Id, item.Name)</td>
+        <td class="hidden-xs">@Html.DisplayFor(modelItem => item.Short_Name)</td>
+        <td>@HtmlBuilder.ProjectsLink(Url, item.Projects.Count(), new { sch = item.School_Id }, true)</td>
+        <td class="hidden-xxs">@Html.Raw(item.Ambassadors.Count)</td>
+        <td class="hidden-xxs">@Html.Raw(item.Mentors.Count)</td>
+    </tr>
+}
+</table>

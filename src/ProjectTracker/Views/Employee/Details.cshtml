@@ -1,0 +1,83 @@
+﻿@model Employee
+
+@{
+    bool isAdmin = Login.IsAdmin(Context);
+    ViewBag.Title = "User Details";
+}
+
+<div class="details-header open">
+    @HtmlBuilder.BreadcrumbTitle(Url, "Users", "Details")
+    <hr />
+    @if (isAdmin)
+    {
+        <p class="details-actions">
+            @HtmlBuilder.EditItemLink(Url, "Employee", Model.Emp_Id)
+            @if (Model.Projects.Count() == 0)
+            {
+                @HtmlBuilder.DeleteItem()
+            }
+        </p>
+    }
+</div>
+
+@if (isAdmin && Model.Projects.Count() == 0)
+{
+    <div class="details-delete">
+        <h3>Are you sure?</h3>
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @HtmlBuilder.DeleteConfirmButtons()
+        }
+        <hr />
+    </div>
+}
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Username)</dt>
+        <dd>@Html.DisplayFor(model => model.Username)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.FullName)</dt>
+        <dd>@Html.DisplayFor(model => model.FullName)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Role)</dt>
+        <dd>@Html.DisplayFor(model => model.Role.Title)</dd>
+
+        <dt>Projects Created</dt>
+        <dd>@HtmlBuilder.ProjectsLink(Url, Model.Projects.Count(), new { usr = Model.Emp_Id })</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.VoteCount)</dt>
+        <dd>
+            @if (Model.VoteCount == 0)
+            { @Html.Raw("None") }
+            else
+            { @Html.ActionLink("View all (" + Model.VoteCount + ")", "Votes", new { id = Model.Emp_Id }) }
+        </dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Schools)</dt>
+        <dd>
+            @if (Model.Schools.Count > 0)
+            {
+                <div>
+                    @foreach (School s in Model.Schools)
+                    {
+                        @Html.Raw(HtmlBuilder.DetailsLink(Url, "School", s.School_Id, s.Short_Name, s.Name))
+                        <br />
+                    }
+                </div>
+            }
+            else
+            {
+                @Html.Raw("None")
+            }
+        </dd>
+    </dl>
+</div>
+
+@if (isAdmin && Model.Projects.Count() == 0)
+{
+    @section Scripts {
+        @Scripts.Render("~/Scripts/Custom/details-delete.js")
+    }
+}

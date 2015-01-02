@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Employee>
+
+@{
+    bool isAdmin = Login.IsAdmin(Context);
+    ViewBag.Title = "Users";
+}
+
+<h2 class="list-title">Users</h2>
+@if (isAdmin)
+{
+    <a class="list-new" href="@Url.Action("Create", "Employee")">
+        <span class="glyphicon glyphicon-plus-sign"></span> Create New
+    </a>
+}
+
+<table class="table table-striped table-hover table-condensed">
+    <thead>
+        <tr>
+            @if (isAdmin)
+            {
+                <th></th>
+            }
+            <th>@Html.DisplayNameFor(model => model.Username)</th>
+            <th class="hidden-xxs">@Html.DisplayNameFor(model => model.FullName)</th>
+            <th class="hidden-xxs">@Html.DisplayNameFor(model => model.Role)</th>
+            <th>@Html.DisplayNameFor(model => model.Projects)</th>
+        </tr>
+    </thead>
+
+@foreach (var item in Model) {
+    <tr>
+        @if (isAdmin)
+        {
+            <td class="list-actions @if (item.Projects.Count() == 0) { @Html.Raw("admin-list-actions"); }">
+                @if (item.Projects.Count() == 0)
+                {
+                    @HtmlBuilder.DeleteItemLink(Url, "Employee", item.Emp_Id);
+                }
+                @HtmlBuilder.EditItemLink(Url, "Employee", item.Emp_Id)
+            </td>
+        }
+        <td>@HtmlBuilder.DetailsLink(Url, "Employee", item.Emp_Id, item.Username)</td>
+        <td class="hidden-xxs">@Html.DisplayFor(modelItem => item.FullName)</td>
+        <td class="hidden-xxs">@Html.DisplayFor(modelItem => item.Role.Title)</td>
+        <td>@HtmlBuilder.ProjectsLink(Url, item.Projects.Count(), new { usr = item.Emp_Id }, true)</td>
+    </tr>
+}
+</table>
